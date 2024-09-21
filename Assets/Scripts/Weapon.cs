@@ -1,12 +1,13 @@
 using System;
 using System.Collections;
 using System.Collections.Generic;
+using System.Runtime.CompilerServices;
+using TMPro;
 using UnityEngine;
-
 
 public class Weapon : MonoBehaviour
 {
-    public Camera playerCamera;
+    public bool isActiveWeapon;
 
     // Shooting
     public bool isShooting, readyToShoot;
@@ -26,6 +27,34 @@ public class Weapon : MonoBehaviour
     public float bulletVelocity = 30;
     public float bulletPrefabLifeTime = 3f;
 
+    public GameObject muzzleEffect;
+    internal Animator animator;
+
+    public float recoilAngle = 5f; // Maximum rotation angle on the x-axis
+    public float recoilSpeed = 10f; // Speed of the recoil rotation
+    public float returnSpeed = 15f; // Speed at which the gun returns to idle
+
+    private Quaternion initialRotation; // Original rotation of the gun
+    private Quaternion targetRotation; // Desired rotation after recoil
+
+    // Reload
+    public float reloadTime;
+    public int magazineSize, bulletsLeft;
+    public bool isReloading;
+
+    public Vector3 spawnPosition;
+    public Vector3 spawnRotation;
+    public Vector3 spawnScale;
+
+    public Sprite weaponIcon;
+    public enum WeaponModel
+    {
+        Pistol1911,
+        AK47
+    }
+
+    public WeaponModel WeaponModels;
+
     public enum ShootingMode
     {
         Single,
@@ -39,39 +68,85 @@ public class Weapon : MonoBehaviour
     {
         readyToShoot = true;
         burstBulletLeft = bulletsPerBurst;
+        animator = GetComponent<Animator>();
+        // Store the initial rotation of the gun
+        initialRotation = transform.localRotation;
+        targetRotation = initialRotation;
+        bulletsLeft = magazineSize;
+    }
+
+    private void Start()
+    {
+        // Ensure initialRotation is correctly set at the start
+        initialRotation = transform.localRotation;
+        targetRotation = initialRotation;
     }
 
     void Update()
     {
-        if (currentShootingMode == ShootingMode.Auto)
+        if (isActiveWeapon)
         {
-            // Hold Mouse
-            isShooting = Input.GetKey(KeyCode.Mouse0);
-        }
-        else if (currentShootingMode == ShootingMode.Single || currentShootingMode == ShootingMode.Burst)
-        {
-            // Click Mouse
-            isShooting = Input.GetKeyDown(KeyCode.Mouse0);
-        }
 
-        if (readyToShoot && isShooting)
-        {
-            burstBulletLeft = bulletsPerBurst;
-            FireWeapon();
+            GetComponent<Outline>().enabled = false;   
+            if (bulletsLeft == 0 && isShooting)
+            {
+                SoundManager.Instance.emptymagSoundAK47.Play();
+            }
+
+            HandleRecoil();
+            if (currentShootingMode == ShootingMode.Auto)
+            {
+                // Hold Mouse
+                isShooting = Input.GetKey(KeyCode.Mouse0);
+            }
+            else if (currentShootingMode == ShootingMode.Single || currentShootingMode == ShootingMode.Burst)
+            {
+                // Click Mouse
+                isShooting = Input.GetKeyDown(KeyCode.Mouse0);
+            }
+
+            if (Input.GetKeyDown(KeyCode.R) && bulletsLeft < magazineSize && isReloading == false)
+            {
+                Reload();
+            }
+
+            if (readyToShoot && isShooting == false && isReloading == false && bulletsLeft <= 0)
+            {
+                Reload();
+            }
+
+            if (readyToShoot && isShooting && bulletsLeft > 0)
+            {
+                burstBulletLeft = bulletsPerBurst;
+                FireWeapon();
+            }
+
+            if (AmmoManager.Instance.ammoDisplay != null)
+            {
+                AmmoManager.Instance.ammoDisplay.text = $"{bulletsLeft / bulletsPerBurst}/{magazineSize / bulletsPerBurst}";
+            }
         }
     }
 
     private void FireWeapon()
     {
+        bulletsLeft--;
+
+        muzzleEffect.GetComponent<ParticleSystem>().Play();
+
+        SoundManager.Instance.ShootSound(WeaponModels);
+
         readyToShoot = false;
+
+        ApplyRecoil();
 
         Vector3 shootingDirection = CalculateDirectionAndSpread().normalized;
         // Instantiate Bullet
         GameObject bullet = Instantiate(bulletPrefab, bulletSpawn.position, Quaternion.identity);
         // Pointing bullet to face shoot direction
         bullet.transform.forward = shootingDirection;
-        // Shoot the Bullet
-        bullet.GetComponent<Rigidbody>().AddForce(bulletSpawn.forward.normalized *  bulletVelocity, ForceMode.Impulse);
+        // Shoot the Bullet with spread direction
+        bullet.GetComponent<Rigidbody>().AddForce(shootingDirection * bulletVelocity, ForceMode.Impulse);
         // Destroy bullet after shoot
         StartCoroutine(DestroyBulletAfterTime(bullet, bulletPrefabLifeTime));
 
@@ -90,6 +165,44 @@ public class Weapon : MonoBehaviour
         }
     }
 
+    private void Reload()
+    {
+        SoundManager.Instance.ReloadSound(WeaponModels);
+        animator.SetTrigger("RELOAD");
+        isReloading = true;
+        Invoke("ReloadCompleted", reloadTime);
+    }
+
+    private void ReloadCompleted()
+    {
+        bulletsLeft = magazineSize;
+        isReloading = false;
+    }
+
+    private void ApplyRecoil()
+    {
+        // Set the target rotation by rotating upward on the x-axis
+        targetRotation = initialRotation * Quaternion.Euler(recoilAngle, 0f, 0f);
+    }
+
+    private void HandleRecoil()
+    {
+        // Smoothly interpolate towards the target rotation
+        transform.localRotation = Quaternion.Lerp(transform.localRotation, targetRotation, Time.deltaTime * recoilSpeed);
+
+        // If close to target rotation, reset to initial
+        if (Quaternion.Angle(transform.localRotation, targetRotation) < 0.1f)
+        {
+            targetRotation = initialRotation;
+        }
+
+        // Smoothly return to initial rotation
+        if (Quaternion.Angle(transform.localRotation, initialRotation) > 0.1f && targetRotation == initialRotation)
+        {
+            transform.localRotation = Quaternion.Lerp(transform.localRotation, initialRotation, Time.deltaTime * returnSpeed);
+        }
+    }
+
     private void ResetShot()
     {
         readyToShoot = true;
@@ -99,7 +212,7 @@ public class Weapon : MonoBehaviour
     public Vector3 CalculateDirectionAndSpread()
     {
         // Shoot from middle of screen to check direction
-        Ray ray = playerCamera.ViewportPointToRay(new Vector3(0.5f, 0.5f, 0));
+        Ray ray = Camera.main.ViewportPointToRay(new Vector3(0.5f, 0.5f, 0));
         RaycastHit hit;
 
         Vector3 targetPoint;
@@ -127,5 +240,16 @@ public class Weapon : MonoBehaviour
     {
         yield return new WaitForSeconds(delay);
         Destroy(bullet);
+    }
+
+    /// <summary>
+    /// Resets the initial and target rotation based on the current local rotation.
+    /// This should be called after the weapon is picked up and its rotation is set.
+    /// </summary>
+    public void ResetInitialRotation()
+    {
+        initialRotation = transform.localRotation;
+        targetRotation = initialRotation;
+        Debug.Log($"Weapon '{gameObject.name}' initialRotation reset to: {initialRotation.eulerAngles}");
     }
 }
