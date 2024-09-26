@@ -1,13 +1,13 @@
 using System;
 using System.Collections;
 using System.Collections.Generic;
-using System.Runtime.CompilerServices;
 using TMPro;
 using UnityEngine;
 
 public class Weapon : MonoBehaviour
 {
     public bool isActiveWeapon;
+    public int weaponDamage;
 
     // Shooting
     public bool isShooting, readyToShoot;
@@ -46,7 +46,6 @@ public class Weapon : MonoBehaviour
     public Vector3 spawnRotation;
     public Vector3 spawnScale;
 
-    public Sprite weaponIcon;
     public enum WeaponModel
     {
         Pistol1911,
@@ -75,7 +74,7 @@ public class Weapon : MonoBehaviour
         bulletsLeft = magazineSize;
     }
 
-    private void Start()
+    void Start()
     {
         // Ensure initialRotation is correctly set at the start
         initialRotation = transform.localRotation;
@@ -86,14 +85,16 @@ public class Weapon : MonoBehaviour
     {
         if (isActiveWeapon)
         {
+            GetComponent<Outline>().enabled = false;
 
-            GetComponent<Outline>().enabled = false;   
             if (bulletsLeft == 0 && isShooting)
             {
                 SoundManager.Instance.emptymagSoundAK47.Play();
             }
 
             HandleRecoil();
+
+            // Handle Shooting Modes
             if (currentShootingMode == ShootingMode.Auto)
             {
                 // Hold Mouse
@@ -105,25 +106,23 @@ public class Weapon : MonoBehaviour
                 isShooting = Input.GetKeyDown(KeyCode.Mouse0);
             }
 
-            if (Input.GetKeyDown(KeyCode.R) && bulletsLeft < magazineSize && isReloading == false)
+            // Manual Reload Input
+            if (Input.GetKeyDown(KeyCode.R) && bulletsLeft < magazineSize && !isReloading && WeaponManager.Instance.CheckAmmoLeftFor(WeaponModels) > 0)
             {
                 Reload();
             }
 
-            if (readyToShoot && isShooting == false && isReloading == false && bulletsLeft <= 0)
+            // Automatic Reload when magazine is empty
+            if (!isReloading && bulletsLeft == 0 && WeaponManager.Instance.CheckAmmoLeftFor(WeaponModels) > 0)
             {
                 Reload();
             }
 
+            // Fire Weapon if Ready
             if (readyToShoot && isShooting && bulletsLeft > 0)
             {
                 burstBulletLeft = bulletsPerBurst;
                 FireWeapon();
-            }
-
-            if (AmmoManager.Instance.ammoDisplay != null)
-            {
-                AmmoManager.Instance.ammoDisplay.text = $"{bulletsLeft / bulletsPerBurst}/{magazineSize / bulletsPerBurst}";
             }
         }
     }
@@ -143,6 +142,8 @@ public class Weapon : MonoBehaviour
         Vector3 shootingDirection = CalculateDirectionAndSpread().normalized;
         // Instantiate Bullet
         GameObject bullet = Instantiate(bulletPrefab, bulletSpawn.position, Quaternion.identity);
+        Bullet bul = bullet.GetComponent<Bullet>();
+        bul.Damage = weaponDamage;
         // Pointing bullet to face shoot direction
         bullet.transform.forward = shootingDirection;
         // Shoot the Bullet with spread direction
@@ -175,7 +176,13 @@ public class Weapon : MonoBehaviour
 
     private void ReloadCompleted()
     {
-        bulletsLeft = magazineSize;
+        int neededAmmo = magazineSize - bulletsLeft;
+        int availableAmmo = WeaponManager.Instance.CheckAmmoLeftFor(WeaponModels);
+        int ammoToLoad = Mathf.Min(neededAmmo, availableAmmo);
+
+        bulletsLeft += ammoToLoad;
+        WeaponManager.Instance.DecreaseTotalAmmo(ammoToLoad, WeaponModels);
+
         isReloading = false;
     }
 
@@ -242,10 +249,6 @@ public class Weapon : MonoBehaviour
         Destroy(bullet);
     }
 
-    /// <summary>
-    /// Resets the initial and target rotation based on the current local rotation.
-    /// This should be called after the weapon is picked up and its rotation is set.
-    /// </summary>
     public void ResetInitialRotation()
     {
         initialRotation = transform.localRotation;

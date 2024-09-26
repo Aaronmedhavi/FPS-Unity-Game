@@ -1,6 +1,8 @@
+using System;
 using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.UI;
+using static Weapon;
 
 public class WeaponManager : MonoBehaviour
 {
@@ -9,10 +11,11 @@ public class WeaponManager : MonoBehaviour
     [Header("Weapon Slots")]
     public List<GameObject> weaponSlots;
 
-    [Header("UI Elements")]
-    public Image weaponIconImage; // Assign the WeaponIcon Image in the Inspector
-
     public GameObject activeWeaponSlot;
+
+    [Header("Ammo")]
+    public int totalRifleAmmo = 90; // Example initial ammo
+    public int totalPistolAmmo = 45; // Example initial ammo
 
     private void Awake()
     {
@@ -31,7 +34,6 @@ public class WeaponManager : MonoBehaviour
         if (weaponSlots.Count > 0)
         {
             activeWeaponSlot = weaponSlots[0];
-            UpdateWeaponUI();
         }
         else
         {
@@ -42,7 +44,6 @@ public class WeaponManager : MonoBehaviour
     private void Update()
     {
         HandleWeaponActivation();
-
         HandleWeaponSwitchInput();
     }
 
@@ -63,7 +64,6 @@ public class WeaponManager : MonoBehaviour
 
     private void HandleWeaponSwitchInput()
     {
-        // Example: Switching weapons with number keys 1-9
         if (Input.GetKeyDown(KeyCode.Alpha1))
         {
             SwitchActiveSlot(0);
@@ -72,16 +72,12 @@ public class WeaponManager : MonoBehaviour
         {
             SwitchActiveSlot(1);
         }
-
-        // Add more key bindings if you have more weapon slots
-        // For example:
-        // if (Input.GetKeyDown(KeyCode.Alpha3)) { SwitchActiveSlot(2); }
+        // Add more slots if needed
     }
 
     public void PickupWeapon(GameObject pickedUpWeapon)
     {
         AddWeaponIntoActiveSlot(pickedUpWeapon);
-        UpdateWeaponUI(); // Update UI after picking up a new weapon
     }
 
     private void AddWeaponIntoActiveSlot(GameObject pickedUpWeapon)
@@ -184,37 +180,56 @@ public class WeaponManager : MonoBehaviour
                 Debug.LogWarning("New weapon does not have a Weapon component.");
             }
         }
-
-        UpdateWeaponUI(); // Update UI after switching weapons
     }
 
-    private void UpdateWeaponUI()
+    internal void DecreaseTotalAmmo(int bulletsToDecrease, Weapon.WeaponModel weaponModel)
     {
-        if (weaponIconImage == null)
+        switch (weaponModel)
         {
-            Debug.LogWarning("WeaponManager: WeaponIcon Image is not assigned.");
-            return;
+            case Weapon.WeaponModel.Pistol1911:
+                totalPistolAmmo -= bulletsToDecrease;
+                totalPistolAmmo = Mathf.Max(totalPistolAmmo, 0); // Prevent negative ammo
+                break;
+            case Weapon.WeaponModel.AK47:
+                totalRifleAmmo -= bulletsToDecrease;
+                totalRifleAmmo = Mathf.Max(totalRifleAmmo, 0); // Prevent negative ammo
+                break;
+            // Add cases for other weapon types as needed
+            default:
+                Debug.LogWarning("DecreaseTotalAmmo: WeaponModel not recognized.");
+                break;
         }
+    }
 
-        if (activeWeaponSlot.transform.childCount > 0)
+    public int CheckAmmoLeftFor(Weapon.WeaponModel weaponModel)
+    {
+        switch (weaponModel)
         {
-            Weapon activeWeapon = activeWeaponSlot.transform.GetChild(0).GetComponent<Weapon>();
-            if (activeWeapon != null && activeWeapon.weaponIcon != null)
-            {
-                weaponIconImage.sprite = activeWeapon.weaponIcon;
-                weaponIconImage.enabled = true; // Ensure the icon is visible
-            }
-            else
-            {
-                Debug.LogWarning("Active weapon or its icon is missing.");
-                weaponIconImage.enabled = false; // Hide the icon if missing
-            }
+            case Weapon.WeaponModel.Pistol1911:
+                return totalPistolAmmo;
+            case Weapon.WeaponModel.AK47:
+                return totalRifleAmmo;
+            // Add cases for other weapon types as needed
+            default:
+                Debug.LogWarning("CheckAmmoLeftFor: WeaponModel not recognized.");
+                return 0;
         }
-        else
+    }
+
+    public void AddTotalAmmo(int bulletsToAdd, WeaponModel weaponModel)
+    {
+        switch (weaponModel)
         {
-            // No weapon equipped
-            weaponIconImage.sprite = null;
-            weaponIconImage.enabled = false; // Hide the icon
+            case WeaponModel.Pistol1911:
+                totalPistolAmmo += bulletsToAdd;
+                break;
+            case WeaponModel.AK47:
+                totalRifleAmmo += bulletsToAdd;
+                break;
+            // Add cases for other weapon types as needed
+            default:
+                Debug.LogWarning("AddTotalAmmo: WeaponModel not recognized.");
+                break;
         }
     }
 }

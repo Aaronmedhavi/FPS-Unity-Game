@@ -49,6 +49,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   isActiveWeapon: 0
+  weaponDamage: 10
   isShooting: 0
   readyToShoot: 0
   shootingDelay: 0.3
@@ -65,13 +66,12 @@ MonoBehaviour:
   recoilSpeed: 20
   returnSpeed: 15
   reloadTime: 1.5
-  magazineSize: 11
+  magazineSize: 7
   bulletsLeft: 0
   isReloading: 0
   spawnPosition: {x: 0.569, y: 0.852, z: 1.267}
   spawnRotation: {x: 0, y: 180, z: -40.257}
   spawnScale: {x: 3.3158, y: 3.3158, z: 3.3158}
-  weaponIcon: {fileID: 21300000, guid: 8c87d681338f9b943be6d4e3921ca2a2, type: 3}
   WeaponModels: 0
   currentShootingMode: 0
 --- !u!95 &8472501222302311864
