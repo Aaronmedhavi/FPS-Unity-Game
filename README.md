@@ -14,7 +14,7 @@ Zero Hour Assault is a first-person shooter where you play as a lone soldier bat
 1. Make sure you have Unity (version 2022.3.9f1 or later) installed on your machine.
 2. Clone this repository:
    ```
-   git clone https://github.com/Aaronmedhavi/SideScroll-GameProg.git
+   git clone https://github.com/Aaronmedhavi/FPS-Unity-Game.git
    ```
 3. Open the project in Unity.
 4. Open the game scene located in the "Assets/Scenes" folder.
