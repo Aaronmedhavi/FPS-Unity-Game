@@ -1,12 +1,6 @@
 ## About
 Zero Hour Assault is a first-person shooter where you play as a lone soldier battling enemy forces in a city. Navigate streets, engage in close-quarters combat, and use the urban environment to outsmart your enemies.
 
-## Features
-- Engaging FPS gameplay
-- Patrolling Enemies
-- Stunning visuals and immersive sound design
-- Smooth character animations and responsive controls
-
 ## Installation
 
 ### Clone the Repository
@@ -30,3 +24,17 @@ Zero Hour Assault is a first-person shooter where you play as a lone soldier bat
 - Shoot: Left Mouse Button
 - Pick Up Weapon: F
 - Switch Weapon: 1 / 2
+
+## Features and Script
+- Play With Multiple Weapons
+- Patrolling Enemies using NavMesh
+- Stunning visuals and immersive sound design
+- Smooth character animations and responsive controls
+
+|  Script       | Description                                                  |
+| ------------------- | ------------------------------------------------------------ |
+| `WeaponManager.cs` | Manages the weapon slot, active weapon, and ammo. |
+| `EnemyPatrollingState.cs` | Controls the animation state for patrolling enemies. |
+| `SoundManager.cs`  | Controls the audio used for sound effects for guns. |
+| `UIManager.cs`  | Manages various UI elements and assign them to the appropiate elements. |
+| `etc`  | |
