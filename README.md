@@ -29,3 +29,4 @@ Zero Hour Assault is a first-person shooter where you play as a lone soldier bat
 - Jump: Spacebar
 - Shoot: Left Mouse Button
 - Pick Up Weapon: F
+- Switch Weapon: 1 / 2
