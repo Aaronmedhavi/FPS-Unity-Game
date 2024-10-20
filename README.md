@@ -26,6 +26,15 @@ Zero Hour Assault is a first-person shooter where you play as a lone soldier bat
 - Switch Weapon: 1 / 2
 
 ## 📺 Gameplay Footage / Screenshot
+  <tr>
+    <td><img src="https://github.com/Aaronmedhavi/ProjectClips/blob/main/fPSSS - Made with Clipchamp.gif?raw=true" width="500"></td>
+  </tr>
+<table>
+  <tr>
+    <td><img src="https://github.com/Aaronmedhavi/ProjectClips/blob/main/Screenshot 2024-10-20 234429.png?raw=true" width="400"></td>
+    <td><img src="https://github.com/Aaronmedhavi/ProjectClips/blob/main/Screenshot 2024-10-20 234506.png?raw=true" width="400"></td>
+  </tr>
+</table>
 
 ## ⚙️ Mechanics
 <h3>Netcode For GameObjects</h3>
