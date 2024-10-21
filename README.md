@@ -60,3 +60,7 @@ The weapon is stored inside of a weapon slot located in the game scene, which wo
 | `SoundManager.cs`  | Controls the audio used for sound effects for guns. |
 | `UIManager.cs`  | Manages various UI elements and assign them to the appropiate elements. |
 | `etc`  | |
+
+## 📫 Contact
+If you want to provide feedback or report bugs, feel free to reach out to me here:
+- Email: aaronmedhavi@gmail.com
