@@ -37,11 +37,14 @@ Zero Hour Assault is a first-person shooter where you play as a lone soldier bat
 </table>
 
 ## ⚙️ Mechanics
-<h3>Netcode For GameObjects</h3>
-<p align="justify">Experience online multiplayer experience made possible with Netcode. Through the use of a network manager, it allows players to join the game as a host or a client in a menu. The game will start when there is 2 players in the game, the ball will spawn once all the players have joined. The built in network manager only provide one slot for the player prefab but with the use of an index based on the client ID, it's now possible for players to play with distinct sprites.</p>
 
-<h3>Post Processing</h3>
+### NavMesh and State Machine
+Experience online multiplayer experience made possible with Netcode. Through the use of a network manager, it allows players to join the game as a host or a client in a menu. The game will start when there is 2 players in the game, the ball will spawn once all the players have joined. The built in network manager only provide one slot for the player prefab but with the use of an index based on the client ID, it's now possible for players to play with distinct sprites.
+
+### URP Post Processing
 <p align="justify">Implementation of basic post processing which includes bloom and color grading to increase visual fidelity and enhance the player experience without sacrificing any performance.</p>
+
+### Weapon Management
 
 ## 📚 Features and Script
 - Play With Multiple Weapons
