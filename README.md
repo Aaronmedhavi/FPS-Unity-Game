@@ -2,6 +2,13 @@
 Zero Hour Assault is a first-person shooter where you play as a lone soldier battling enemy forces in a city. Navigate streets, engage in close-quarters combat, and use the urban environment to outsmart your enemies.
 
 ## Project Info
+| **Role** | **Team Size** | **Development Time** |
+|----------|---------------|---------------------|
+| Game Programmer | 1 | 3 Weeks |
+
+| **Name** | **Role** |
+|----------|----------|
+| Aaron Medhavi Kusnandar | Game Programmer |
 
 ## 🎮 Controls
 
